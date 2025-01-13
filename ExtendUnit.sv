@@ -31,10 +31,10 @@ module ExtendUnit (
         ExtImm = {24'b0, inst[7:0]};
       end
       2'b01: begin
-        ExtImm = {20'b0, Instr[11:0]};
+        ExtImm = {20'b0, inst[11:0]};
       end
       2'b10: begin
-        ExtImm = {{6{Instr[23]}}, Instr[23:0], 2'b00};
+        ExtImm = {{6{inst[23]}}, inst[23:0], 2'b00};
       end
       default: begin
         //Not supported

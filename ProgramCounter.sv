@@ -22,7 +22,7 @@
 
 module ProgramCounter (
     clock,
-    PcIn,
+    pcIn,
     PcOut
 );
   input clock;
@@ -31,4 +31,8 @@ module ProgramCounter (
   always @(posedge clock) begin
     PcOut <= pcIn;
   end
+  
+   initial begin
+        PcOut = 32'h0;
+    end
 endmodule

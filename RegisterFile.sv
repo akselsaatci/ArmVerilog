@@ -34,6 +34,14 @@ module RegisterFile (
 
   reg [31:0] register[31:0];
 
+    
+     integer i;
+    initial begin
+        for (i = 0; i < 32; i = i + 1) begin
+            register[i] = 32'h0;
+        end  
+    end
+
   always @(posedge clk) begin
     register[15] <= iR15;
     if (RegWrite) begin

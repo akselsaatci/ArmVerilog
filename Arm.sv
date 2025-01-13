@@ -63,14 +63,14 @@ module Arm (
 
   ProgramCounter PC (
       .clock(clk),
-      .pcIn (PCPlusFour),
+      .pcIn (nextPc),
       .PcOut(pc)
   );
 
 
   fulladder_b fullAdderForPcPlusFour (
       .a(pc),
-      .b(32'b00000000000000000000000000000100),
+      .b(32'b00000000000000000000000000000001),
       .cin(1'b0),
       .s(PCPlusFour),
       .cout(voidWire)
@@ -78,8 +78,8 @@ module Arm (
 
 
   fulladder_b fullAdderForPcPlusEight (
-      .a(PCPlusFour),
-      .b(32'b00000000000000000000000000000100),
+      .a(pc),
+      .b(32'b00000000000000000000000000000010),
       .cin(1'b0),
       .s(PCPlusEight),
       .cout(voidWire)
@@ -91,10 +91,10 @@ module Arm (
   );
 
   ControlUnit ControlUnit (
-      .cond(Instruction[28:31]),
-      .op(Instruction[26:27]),
-      .funct(Instruction[20:25]),
-      .rd(Instruction[12:15]),
+      .cond(Instruction[31:28]),
+      .op(Instruction[27:26]),
+      .funct(Instruction[25:20]),
+      .rd(Instruction[15:12]),
       .PCSrc(pcSrc),
       .MemToReg(memToReg),
       .MemWrite(memWrite),
@@ -103,18 +103,22 @@ module Arm (
       .ImmSrc(immSrc),
       .RegSrc(regSrc),
       .RegWrite(regWrite),
+      .v(v),
+      .c(c),
+      .n(n),
+      .z(z)
   );
 
   mux4bitCtrl MuxForRA1 (
-      .d0(Instruction[16:19]),
+      .d0(Instruction[19:16]),
       .d1(4'b1111),
       .s (regSrc[0]),
       .y (RA1)
   );
 
   mux4bitCtrl MuxForRA2 (
-      .d0(Instruction[0:3]),
-      .d1(Instruction[12:15]),
+      .d0(Instruction[3:0]),
+      .d1(Instruction[15:12]),
       .s (regSrc[1]),
       .y (RA2)
   );
@@ -124,15 +128,15 @@ module Arm (
       .RegWrite(regWrite),
       .a1(RA1),
       .a2(RA2),
-      .a3(Instruction[12:15]),
+      .a3(Instruction[15:12]),
       .wd3(Result),
-      .iR15(PcPlusEight),
+      .iR15(PCPlusEight),
       .RD1(SrcA),
       .RD2(SrcB)
   );
 
   ExtendUnit ExUnit (
-      .inst  (Instruction[0:23]),
+      .inst  (Instruction[23:0]),
       .immSrc(immSrc),
       .ExtImm(ExtImm)
   );

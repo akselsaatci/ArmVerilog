@@ -29,12 +29,19 @@ module DataMemory (
 );
   logic [31:0] RAM[63:0];
 
-  assign rd = RAM[a];
+  assign rd = RAM[adress];
 
   always_ff @(posedge clk) begin
     if (writeEnable) begin
-      RAM[adress] <= wd;
+      RAM[adress] <= writeData;
     end
   end
+  
+   integer i;
+    initial begin
+        for (i = 0; i < 64; i = i + 1) begin
+            RAM[i] = 32'h0;
+        end
+    end
 
 endmodule

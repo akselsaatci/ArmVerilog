@@ -25,6 +25,10 @@ module ControlUnit (
     input [1:0] op,
     input [5:0] funct,
     input [3:0] rd,
+    input v,
+    input c,
+    input n,
+    input z,
     // maybe aslo get flags?
     // flags are required for the conditional
     // ADD CONDITIONS TODO
