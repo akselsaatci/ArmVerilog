@@ -21,27 +21,27 @@
 
 
 module RegisterFile (
-    input wire clk,              
-    input wire RegWrite,          
-    input wire [3:0] a1,          
-    input wire [3:0] a2,          
-    input wire [3:0] a3,          
-    input wire [31:0] wd3, 
+    input wire clk,
+    input wire RegWrite,
+    input wire [3:0] a1,
+    input wire [3:0] a2,
+    input wire [3:0] a3,
+    input wire [31:0] wd3,
     input wire [31:0] iR15,
     output wire [31:0] RD1,
-    output wire [31:0] RD2 
+    output wire [31:0] RD2
 );
 
-    reg [31:0] register [31:0];
+  reg [31:0] register[31:0];
 
-    always @(posedge clk) begin
-       register[15] <= iR15;
-        if (RegWrite) begin
-              register[a3] <= wd3;
-        end
+  always @(posedge clk) begin
+    register[15] <= iR15;
+    if (RegWrite) begin
+      register[a3] <= wd3;
     end
-    assign RD1 = register[a1];
-    assign RD2 = register[a2];
+  end
+  assign RD1 = register[a1];
+  assign RD2 = register[a2];
 
 endmodule
 

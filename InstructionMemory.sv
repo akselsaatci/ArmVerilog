@@ -22,7 +22,8 @@
 
 module InstructionMemory (
     input [31:0] instructionAdress,
-    input [31:0] result
+    output [31:0] result
+
 );
 
   reg [31:0] InsturctionMem[31:0];

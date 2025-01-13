@@ -26,9 +26,9 @@ module ProgramCounter (
     PcOut
 );
   input clock;
-  input [31:0] PcIn;
+  input [31:0] pcIn;
   output reg [31:0] PcOut;
   always @(posedge clock) begin
-    PcOut <= PcIn;
+    PcOut <= pcIn;
   end
 endmodule
