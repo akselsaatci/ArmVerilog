@@ -31,7 +31,7 @@ module ControlUnit (
     output logic [1:0] PCSrc,
     output logic MemToReg,
     output logic MemWrite,
-    output logic ALUControl,
+    output logic [1:0] ALUControl,
     output logic ALUSrc,
     output logic [1:0] ImmSrc,
     output logic [1:0] RegSrc,
@@ -39,14 +39,16 @@ module ControlUnit (
 );
 
   always @(*) begin
-    RegDst = 0;
-    ALUControl = 0;
-    MemRead = 0;
-    MemWrite = 0;
-    MemToReg = 0;
-    RegWrite = 0;
-    RegSrc = 0;
-    PCSrc = 0;
+
+    //Asaigning default
+    PCSrc = 2'b00;
+    MemToReg = 1'b0;
+    MemWrite = 1'b0;
+    ALUControl = 2'b00;
+    ALUSrc = 1'b0;
+    ImmSrc = 2'b00;
+    RegSrc = 2'b00;
+    RegWrite = 1'b0;
 
     case (op)
       //Data Processing
@@ -54,10 +56,8 @@ module ControlUnit (
         PCSrc = 1'b0;
         MemToReg = 1'b0;
         MemWrite = 1'b0;
-        RegDst = 1'b1;
         RegWrite = 1'b1;
         RegSrc = 2'b00;
-        //ALU OPRATION TODO
         case (funct[5])
           //Data Processing Imm or Reg
           1'b0: begin
@@ -68,17 +68,32 @@ module ControlUnit (
             ImmSrc = 2'b00;
             //TODO figure out ALUSrc
           end
-          //          5'b00000: ALUControl = 2'b00;
-          //          5'b00001: ALUControl = 2'b00;
-          //          5'b00010: ALUControl = 2'b00;
-          //          default:  ALUControl = 0;
+          //TODO currently there is no flagwrite maybe consider it later
+        endcase
+        // Here is basically alu decoder
+        case (funct[4:1])
+          //ADD
+          4'b0100: begin
+            ALUControl = 2'b00;
+          end
+          //SUB
+          4'b0010: begin
+            ALUControl = 2'b01;
+          end
+          //AND
+          4'b0000: begin
+            ALUControl = 2'b10;
+          end
+          //OR
+          4'b1100: begin
+            ALUControl = 2'b11;
+          end
         endcase
       end
       //STR OR LDR
       2'b01: begin
         //STR
         PCSrc = 1'b0;
-        RegDst = 1'b1;
         RegWrite = 1'b1;
         ImmSrc = 2'b01;
         ALUSrc = 1'b1;
