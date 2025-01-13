@@ -23,9 +23,9 @@
 module RegisterFile (
     input wire clk,              
     input wire RegWrite,          
-    input wire [4:0] a1,          
-    input wire [4:0] a2,          
-    input wire [4:0] a3,          
+    input wire [3:0] a1,          
+    input wire [3:0] a2,          
+    input wire [3:0] a3,          
     input wire [31:0] wd3, 
     input wire [31:0] iR15,
     output wire [31:0] RD1,
