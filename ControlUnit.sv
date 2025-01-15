@@ -63,6 +63,7 @@ module ControlUnit (
     //this is for condition
     execute = 1'b0;
 
+    //CONDITIONAL LOGIC UNIT
 
     //        0000 = EQ - Z set (equal)
     //        0001 = NE - Z clear (not equal)
@@ -80,7 +81,6 @@ module ControlUnit (
     //        1101 = LE - Z set, or N set and V clear, or N clear and V set (less than or equal)
     //        1110 = AL - Always
 
-
     case (cond)
       4'b0000 && old_z: execute = 1'b1;
       4'b0001 && !old_z: execute = 1'b1;
@@ -94,95 +94,96 @@ module ControlUnit (
       4'b1001 && !old_c && old_z: execute = 1'b1;
       4'b1010 && ((old_n && old_v) || (!old_n && !old_v)): execute = 1'b1;
       4'b1011 && ((old_n && !old_v) || (!old_n && old_v)): execute = 1'b1;
-
       4'b1100 && ((old_n && !old_v) || (!old_n && old_v)): execute = 1'b1;
-
+      4'b1100 && (!old_z && ((old_n && old_v) || (!old_n && !old_v))): execute = 1'b1;
+      4'b1101 && (old_z || (old_n && !old_v) || (!old_n && old_v)): execute = 1'b1;
+      4'b1110: execute = 1'b1;
     endcase
 
-    case (op)
-      //Data Processing
-      2'b00: begin
-        PCSrc = 1'b0;
-        MemToReg = 1'b0;
-        MemWrite = 1'b0;
-        RegWrite = 1'b1;
-        RegSrc = 2'b00;
-        case (funct[5])
-          //Data Processing Imm or Reg
-          1'b0: begin
-            ALUSrc = 1'b0;
-          end
-          1'b1: begin
-            ALUSrc = 1'b1;
-            ImmSrc = 2'b00;
-            //TODO figure out ALUSrc
-          end
-          //TODO currently there is no flagwrite maybe consider it later
-        endcase
-        // Here is basically alu decoder
-        case (funct[4:1])
-          //ADD
-          4'b0100: begin
-            ALUControl = 2'b00;
-          end
-          //SUB
-          4'b0010: begin
-            ALUControl = 2'b01;
-          end
-          //AND
-          4'b0000: begin
-            ALUControl = 2'b10;
-          end
-          //OR
-          4'b1100: begin
-            ALUControl = 2'b11;
-          end
+    if (execute) begin
+      case (op)
+        //Data Processing
+        2'b00: begin
+          PCSrc = 1'b0;
+          MemToReg = 1'b0;
+          MemWrite = 1'b0;
+          RegWrite = 1'b1;
+          RegSrc = 2'b00;
+          case (funct[5])
+            //Data Processing Imm or Reg
+            1'b0: begin
+              ALUSrc = 1'b0;
+            end
+            1'b1: begin
+              ALUSrc = 1'b1;
+              ImmSrc = 2'b00;
+            end
+          endcase
+          // Here is basically alu decoder
+          case (funct[4:1])
+            //ADD
+            4'b0100: begin
+              ALUControl = 2'b00;
+            end
+            //SUB
+            4'b0010: begin
+              ALUControl = 2'b01;
+            end
+            //AND
+            4'b0000: begin
+              ALUControl = 2'b10;
+            end
+            //OR
+            4'b1100: begin
+              ALUControl = 2'b11;
+            end
 
-        endcase
-        //Flag Write
-        if (funct[0] == 1) begin
-          old_v = v;
-          old_c = c;
-          old_n = n;
-          old_z = z;
+          endcase
+          //Flag Write
+          if (funct[0] == 1) begin
+            old_v = v;
+            old_c = c;
+            old_n = n;
+            old_z = z;
+          end
         end
-      end
-      //STR OR LDR
-      2'b01: begin
-        //STR
-        PCSrc = 1'b0;
-        RegWrite = 1'b1;
-        ImmSrc = 2'b01;
-        ALUSrc = 1'b1;
-        ALUControl = 2'b00;
-        case (funct[0])
-          1'b0: begin
-            MemToReg = 1'bX;
-            MemWrite = 1'b1;
-            RegWrite = 1'b0;
-            RegSrc   = 2'b10;
-          end
-          //LDR
-          1'b1: begin
-            MemToReg = 1'b1;
-            MemWrite = 1'b0;
-            RegWrite = 1'b1;
-            RegSrc   = 2'bX0;
-            //ALUOP 0
-          end
-        endcase
-      end
-      //BRANCH
-      2'b10: begin
-        PCSrc = 1'b1;
-        MemToReg = 0;
-        MemWrite = 0;
-        ALUSrc = 1'b1;
-        ImmSrc = 2'b10;
-        RegWrite = 1'b0;
-        RegSrc = 2'bX1;
-        ALUControl = 2'b00;
-      end
-    endcase
+        //STR OR LDR
+        2'b01: begin
+          //STR
+          PCSrc = 1'b0;
+          RegWrite = 1'b1;
+          ImmSrc = 2'b01;
+          ALUSrc = 1'b1;
+          ALUControl = 2'b00;
+          case (funct[0])
+            1'b0: begin
+              MemToReg = 1'bX;
+              MemWrite = 1'b1;
+              RegWrite = 1'b0;
+              RegSrc   = 2'b10;
+            end
+            //LDR
+            1'b1: begin
+              MemToReg = 1'b1;
+              MemWrite = 1'b0;
+              RegWrite = 1'b1;
+              RegSrc   = 2'bX0;
+              //ALUOP 0
+            end
+          endcase
+        end
+        //BRANCH
+        2'b10: begin
+          PCSrc = 1'b1;
+          MemToReg = 0;
+          MemWrite = 0;
+          ALUSrc = 1'b1;
+          ImmSrc = 2'b10;
+          RegWrite = 1'b0;
+          RegSrc = 2'bX1;
+          ALUControl = 2'b00;
+        end
+      endcase
+    end
   end
 endmodule
