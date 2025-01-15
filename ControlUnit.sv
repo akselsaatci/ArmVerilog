@@ -42,7 +42,14 @@ module ControlUnit (
     output logic RegWrite
 );
 
+  logic old_v = 1'b0;
+  logic old_c = 1'b0;
+  logic old_n = 1'b0;
+  logic old_z = 1'b0;
+  logic isThisCycleGoingToExecute = 1'b0;
+
   always @(*) begin
+
 
     //Asaigning default
     PCSrc = 2'b00;
@@ -53,6 +60,44 @@ module ControlUnit (
     ImmSrc = 2'b00;
     RegSrc = 2'b00;
     RegWrite = 1'b0;
+    //this is for condition
+    execute = 1'b0;
+
+
+    //        0000 = EQ - Z set (equal)
+    //        0001 = NE - Z clear (not equal)
+    //        0010 = CS - C set (unsigned higher or same)
+    //        0011 = CC - C clear (unsigned lower)
+    //        0100 = MI - N set (negative)
+    //        0101 = PL - N clear (positive or zero)
+    //        0110 = VS - V set (overflow)
+    //        0111 = VC - V clear (no overflow)
+    //        1000 = HI - C set and Z clear (unsigned higher)
+    //        1001 = LS - C clear or Z set (unsigned lower or same)
+    //        1010 = GE - N set and V set, or N clear and V clear (greater or equal)
+    //        1011 = LT - N set and V clear, or N clear and V set (less than)
+    //        1100 = GT - Z clear, and either N set and V set, or N clear and V clear (greater than)
+    //        1101 = LE - Z set, or N set and V clear, or N clear and V set (less than or equal)
+    //        1110 = AL - Always
+
+
+    case (cond)
+      4'b0000 && old_z: execute = 1'b1;
+      4'b0001 && !old_z: execute = 1'b1;
+      4'b0010 && old_c: execute = 1'b1;
+      4'b0011 && !old_c: execute = 1'b1;
+      4'b0100 && old_n: execute = 1'b1;
+      4'b0101 && !old_n: execute = 1'b1;
+      4'b0110 && old_v: execute = 1'b1;
+      4'b0111 && !old_v: execute = 1'b1;
+      4'b1000 && old_c && !old_z: execute = 1'b1;
+      4'b1001 && !old_c && old_z: execute = 1'b1;
+      4'b1010 && ((old_n && old_v) || (!old_n && !old_v)): execute = 1'b1;
+      4'b1011 && ((old_n && !old_v) || (!old_n && old_v)): execute = 1'b1;
+
+      4'b1100 && ((old_n && !old_v) || (!old_n && old_v)): execute = 1'b1;
+
+    endcase
 
     case (op)
       //Data Processing
@@ -92,7 +137,15 @@ module ControlUnit (
           4'b1100: begin
             ALUControl = 2'b11;
           end
+
         endcase
+        //Flag Write
+        if (funct[0] == 1) begin
+          old_v = v;
+          old_c = c;
+          old_n = n;
+          old_z = z;
+        end
       end
       //STR OR LDR
       2'b01: begin
